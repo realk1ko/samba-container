@@ -11,7 +11,7 @@ LABEL maintainer realk1ko <32820057+realk1ko@users.noreply.github.com>
 ADD ./LICENSE /
 
 RUN set -euo pipefail && \
-    dnf install -y samba \
+    dnf install -y samba && \
     dnf clean all
 
 CMD [ "/usr/sbin/smbd", "--foreground" ]
