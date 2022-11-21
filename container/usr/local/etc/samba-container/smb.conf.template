@@ -1,9 +1,6 @@
 [global]
 	include = registry
 	server role = standalone server
-	workgroup = WORKGROUP
-	mdns name = mdns
-	multicast dns register = no
 	security = user
 	passdb backend = tdbsam
 	encrypt passwords = yes

@@ -5,11 +5,11 @@ set -euo pipefail
 # create default configuration file if it does not exist
 [[ -f /etc/samba/smb.conf ]] || cp /usr/local/etc/samba-container/smb.conf.template /etc/samba/smb.conf
 
-# recreate users that exist in Samba's password database
+# recreate users that exist in Samba's password database, unless they already exist
 pdbedit -L | while read -r user; do
   IFS=":"; user_info=($user); unset IFS;
-  adduser -M -s /sbin/nologin -c "${user_info[2]}" "${user_info[0]}"
+  id -u "${user_info[0]}" &>/dev/null || adduser -M -s /sbin/nologin -c "${user_info[2]}" "${user_info[0]}"
 done
 
 # startup of Samba
-smbd --foreground
+smbd --interactive
