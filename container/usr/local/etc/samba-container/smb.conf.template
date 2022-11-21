@@ -16,7 +16,6 @@
 #[sample-private-share]
 #	comment = Sample Private Share
 #	path = /home/%U
-#	browsable = no
 
 #[sample-public-share]
 #	comment = Sample Public Share
