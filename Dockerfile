@@ -8,10 +8,13 @@ LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.url https://github.com/realk1ko/samba-container
 LABEL maintainer realk1ko <32820057+realk1ko@users.noreply.github.com>
 
+ADD ./container /
+
 ADD ./LICENSE /
 
 RUN set -euo pipefail && \
     dnf install -y samba && \
-    dnf clean all
+    dnf clean all && \
+    chmod 755 /usr/local/bin/*
 
-CMD [ "/usr/sbin/smbd", "--foreground" ]
+CMD [ "/usr/local/bin/start" ]
