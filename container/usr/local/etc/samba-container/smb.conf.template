@@ -13,11 +13,11 @@
 	writable = yes
 	read only = no
 
-[sample-private-share]
-	comment = Sample Private Share
-	path = /home/%U
-	browsable = yes
+#[sample-private-share]
+#	comment = Sample Private Share
+#	path = /home/%U
+#	browsable = no
 
-[sample-public-share]
-	comment = Sample Public Share
-	path = /tmp
+#[sample-public-share]
+#	comment = Sample Public Share
+#	path = /home/public

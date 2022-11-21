@@ -94,8 +94,8 @@ Make sure the share directory has the following permissions:
 - Permissions: `rwxrwx---` (770) for directories and `rw-rw----` (660) for files
 
 Then simply modify both the volume mounts and the `smb.conf` to your needs. The default configuration contains two
-sample shares: A public and a private one. Refer to the following resources for detailed information on configuring
-shares and Samba itself:
+inactive sample shares: A public and a private one. Refer to the following resources for detailed information on
+configuring shares and Samba itself:
 
 - https://github.com/realk1ko/samba-container/blob/main/container/usr/local/etc/samba-container/smb.conf.template
 - https://www.samba.org/samba/docs/4.16/man-html/smb.conf.5.html
