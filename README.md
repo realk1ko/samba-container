@@ -8,11 +8,7 @@ The container provided here allows you to run Samba in a container-only environm
 
 ## Tags
 
-The following tags are published to the GitHub Container Registry:
-
-- The `:latest` tag is updated every Monday
-- The `:dev` tag refers to the image automatically built on the last commit on the `dev` branch. **Please do not use
-  this.**
+The `:latest` tag is updated every Monday.
 
 ## Usage
 
