@@ -6,9 +6,7 @@ set -euo pipefail
 [[ -f /etc/samba/smb.conf ]] || cp /usr/local/etc/samba-container/smb.conf.template /etc/samba/smb.conf
 
 # recreate users that exist in Samba's password database
-users=$(pdbedit -L)
-
-for user in $users; do
+pdbedit -L | while read -r user; do
   IFS=":"; user_info=($user); unset IFS;
   adduser -M -s /sbin/nologin -c "${user_info[2]}" "${user_info[0]}"
 done
