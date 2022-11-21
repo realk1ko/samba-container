@@ -27,7 +27,7 @@ docker run \
     -p 137-138:137-138/udp \
     -p 139:139 \
     -p 445:445 \
-    ghcr.io/realk1ko/samba
+    ghcr.io/realk1ko/samba:latest
 ```
 
 The `samba-config` volume maps to the Samba configuration directory which contains all relevant files for
