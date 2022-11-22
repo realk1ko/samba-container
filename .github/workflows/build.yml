@@ -51,7 +51,7 @@ jobs:
             type=raw,value=latest,enable=${{ inputs.release }}
             type=schedule,pattern={{date 'YYYY-MM-DD'}},enable=${{ inputs.release }}
             
-            type=edge,enable=${{ !inputs.release }}
+            type=raw,value=edge,enable=${{ !inputs.release }}
             type=sha,enable=${{ !inputs.release }}
 
       - name: Build and push

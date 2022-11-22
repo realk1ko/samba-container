@@ -1,7 +1,6 @@
 name: Build (Edge)
 
 on:
-  workflow_dispatch:
   push:
     branches: [ dev ]
 
