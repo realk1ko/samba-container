@@ -8,7 +8,12 @@ The container provided here allows you to run Samba in a container-only environm
 
 ## Tags
 
-The `:latest` tag is updated every Monday.
+The following tags are used for the images:
+
+- `:latest`: This is the tag you should be using. It is updated every Monday automatically. Additionally, each release
+  has a date tag (e. g. `:2022-11-22`).
+- `:edge`: Latest build of the image on the latest commit on the `dev` branch. Each image tagged with this is also
+  tagged with the SHA commit reference it was built on (e. g. `:sha-bb8c5c4`).
 
 ## Usage
 
