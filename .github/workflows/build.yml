@@ -49,7 +49,7 @@ jobs:
             ghcr.io/${{ github.actor }}/${{ inputs.image_name }}
           tags: |
             type=raw,value=latest,enable=${{ inputs.release }}
-            type=schedule,pattern={{date 'YYYY-MM-DD'}},enable=${{ inputs.release }}
+            type=raw,value={{date 'YYYY-MM-DD'}},enable=${{ inputs.release }}
             
             type=raw,value=edge,enable=${{ !inputs.release }}
             type=sha,enable=${{ !inputs.release }}
