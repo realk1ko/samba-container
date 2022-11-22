@@ -46,7 +46,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.actor }}/${{ inputs.image_name }}
+            ghcr.io/${{ secrets.username }}/${{ inputs.image_name }}
           tags: |
             type=raw,value=latest,enable=${{ inputs.release }}
             type=raw,value={{date 'YYYY-MM-DD'}},enable=${{ inputs.release }}
