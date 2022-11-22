@@ -12,4 +12,4 @@ pdbedit -L | while read -r user; do
 done
 
 # startup of Samba
-exec smbd --foreground
+smbd --foreground
