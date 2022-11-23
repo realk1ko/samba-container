@@ -68,8 +68,8 @@ bad option if you're trying to make the files and directories accessible for use
 themselves via other file sharing applications.
 
 The user re-creation **only works** if you're using `tdbsam` as password database backend for Samba. This is
-the [default behaviour](https://www.samba.org/samba/docs/4.16/man-html/smb.conf.5.html#idm7510) in most - if not all -
-distributions and this container.
+the [default behaviour](https://www.samba.org/samba/docs/current/man-html/smb.conf.5.html#idm7607) in most - if not
+all - distributions and this container.
 
 To add a new user, simply login to the container using:
 
@@ -99,5 +99,5 @@ inactive sample shares: A public and a private one. Refer to the following resou
 configuring shares and Samba itself:
 
 - https://github.com/realk1ko/samba-container/blob/main/container/usr/local/etc/samba-container/smb.conf.template
-- https://www.samba.org/samba/docs/4.16/man-html/smb.conf.5.html
+- https://www.samba.org/samba/docs/current/man-html/smb.conf.5.html
 - https://wiki.archlinux.org/title/samba
