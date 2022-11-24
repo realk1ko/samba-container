@@ -120,7 +120,8 @@ This container comes with mDNS support enabled per default (without Avahi). If y
 container, the Samba server will be advertised to all mDNS-compatible devices on your network. This allows you to find
 your server via local network discovery on Apple devices and most Linux distributions.
 
-Configuration for mDNS is done via the `smb.conf` as with normal Samba and Avahi setups.
+Configuration for mDNS is done via the `smb.conf` as with normal Samba and Avahi setups. However, placeholders that can
+be used to configure Samba (e. g. `%h` for the hostname) do not work with the mDNS component of this container.
 
 **Please note: mDNS is only supported for IPv4 currently.**
 
