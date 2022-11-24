@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import configparser
+import os
 import platform
 import signal
 import socket
@@ -30,6 +31,9 @@ class SambaConfig:
             self.hostname = actual_hostname
         else:
             self.hostname = global_config.get("netbios name", actual_hostname.upper())
+
+        # get pretty name via environment variable
+        self.name = os.getenv("PRETTY_NAME", self.hostname)
 
         # model to use for advertising the service to Apple devices
         self.model = global_config.get("fruit:model", "MacSamba")
@@ -70,7 +74,7 @@ class SambaService:
 
                 services.append(ServiceInfo(
                     "_smb._tcp.local.",
-                    f"{self.__config.hostname}._smb._tcp.local.",
+                    f"{self.__config.name}._smb._tcp.local.",
                     445,
                     addresses=[socket.inet_aton(ip_address)],
                     server=f"{self.__config.hostname}.local."
@@ -78,7 +82,7 @@ class SambaService:
 
                 services.append(ServiceInfo(
                     "_device-info._tcp.local.",
-                    f"{self.__config.hostname}._device-info._tcp.local.",
+                    f"{self.__config.name}._device-info._tcp.local.",
                     0,
                     properties={"model": self.__config.model},
                     addresses=[socket.inet_aton(ip_address)],
@@ -88,7 +92,7 @@ class SambaService:
                 for share in self.__config.shares:
                     services.append(ServiceInfo(
                         "_adisk._tcp.local.",
-                        f"{self.__config.hostname}._adisk._tcp.local.",
+                        f"{self.__config.name}._adisk._tcp.local.",
                         0,
                         properties={"dk0": f"adVN={share},adVF=0x82", "sys": "adVF=0x100"},
                         addresses=[socket.inet_aton(ip_address)],
