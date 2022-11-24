@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import configparser
 import platform
+import signal
 import socket
 import time
 
@@ -50,8 +51,8 @@ class SambaConfig:
         for adapter in ifaddr.get_adapters():
             if not selected_adapters or adapter.nice_name in selected_adapters:
                 for ip in adapter.ips:
-                    # FIXME add support for IPv6
-                    # FIXME handle IP changes during runtime
+                    # TODO add support for IPv6
+                    # TODO handle IP changes during runtime
                     if ip.is_IPv4:
                         self.ip_addresses.append(ip.ip)
 
@@ -105,7 +106,7 @@ class SambaService:
             for interface, services in self.__interfaces.items():
                 for service in services:
                     interface.unregister_service(service)
-    
+
                 interface.close()
 
 
@@ -115,10 +116,13 @@ def main():
     service = SambaService(config)
     service.register()
 
+    # make sure to unregister services if terminated
+    signal.signal(signal.SIGTERM, service.unregister)
+
     try:
         while True:
             time.sleep(1)
-    except (SystemExit, KeyboardInterrupt):
+    except KeyboardInterrupt:
         pass
     finally:
         service.unregister()
