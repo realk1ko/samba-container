@@ -1,0 +1,128 @@
+#!/usr/bin/python3
+import configparser
+import platform
+import socket
+import time
+
+import ifaddr
+from zeroconf import IPVersion, ServiceInfo, Zeroconf
+
+
+class SambaConfig:
+    def __init__(self, config_file_path: str) -> None:
+        config_parser = configparser.ConfigParser(delimiters="=")
+        config_parser.read(config_file_path)
+
+        # split between global and share sections
+        global_config = config_parser["global"]
+        share_configs = [
+            config_parser[section] for section in
+            filter(lambda section: section != "global", config_parser.sections())
+        ]
+
+        # whether or not to enable mDNS
+        self.enabled = global_config.getboolean("multicast dns register", True)
+
+        # get hostname value the same way as Samba does
+        actual_hostname = platform.node().split(".")[0]
+        if global_config.get("mdns name", "netbios").casefold() == "mdns".casefold():
+            self.hostname = actual_hostname
+        else:
+            self.hostname = global_config.get("netbios name", actual_hostname.upper())
+
+        # model to use for advertising the service to Apple devices
+        self.model = global_config.get("fruit:model", "MacSamba")
+
+        # check which shares to advertise as time machine locations for Apple devices
+        self.shares = []
+        publish_per_default = global_config.getboolean("fruit:time machine", False)
+        for share_config in share_configs:
+            if share_config.getboolean("fruit:time machine", publish_per_default):
+                self.shares.append(share_config.name)
+
+        # get IP addresses to use for advertising
+        self.ip_addresses = []
+
+        selected_adapters = []
+        if global_config.getboolean("bind interfaces only", False):
+            selected_adapters = global_config.get("interfaces", "").split(r"\s+")
+
+        for adapter in ifaddr.get_adapters():
+            if not selected_adapters or adapter.nice_name in selected_adapters:
+                for ip in adapter.ips:
+                    # FIXME add support for IPv6
+                    # FIXME handle IP changes during runtime
+                    if ip.is_IPv4:
+                        self.ip_addresses.append(ip.ip)
+
+
+class SambaService:
+    def __init__(self, config: SambaConfig) -> None:
+        self.__config = config
+        self.__interfaces = {}
+
+    def register(self):
+        if self.__config.enabled:
+            for ip_address in self.__config.ip_addresses:
+                adapter = Zeroconf(interfaces=[ip_address], ip_version=IPVersion.V4Only)
+                services = []
+
+                services.append(ServiceInfo(
+                    "_smb._tcp.local.",
+                    f"{self.__config.hostname}._smb._tcp.local.",
+                    445,
+                    addresses=[socket.inet_aton(ip_address)],
+                    server=f"{self.__config.hostname}.local."
+                ))
+
+                services.append(ServiceInfo(
+                    "_device-info._tcp.local.",
+                    f"{self.__config.hostname}._device-info._tcp.local.",
+                    0,
+                    properties={"model": self.__config.model},
+                    addresses=[socket.inet_aton(ip_address)],
+                    server=f"{self.__config.hostname}.local."
+                ))
+
+                for share in self.__config.shares:
+                    services.append(ServiceInfo(
+                        "_adisk._tcp.local.",
+                        f"{self.__config.hostname}._adisk._tcp.local.",
+                        0,
+                        properties={"dk0": f"adVN={share},adVF=0x82", "sys": "adVF=0x100"},
+                        addresses=[socket.inet_aton(ip_address)],
+                        server=f"{self.__config.hostname}.local."
+                    ))
+
+                self.__interfaces[adapter] = services
+
+            for interface, services in self.__interfaces.items():
+                for service in services:
+                    interface.register_service(service)
+
+    def unregister(self):
+        if self.__config.enabled:
+            for interface, services in self.__interfaces.items():
+                for service in services:
+                    interface.unregister_service(service)
+    
+                interface.close()
+
+
+def main():
+    config = SambaConfig("/etc/samba/smb.conf")
+
+    service = SambaService(config)
+    service.register()
+
+    try:
+        while True:
+            time.sleep(1)
+    except (SystemExit, KeyboardInterrupt):
+        pass
+    finally:
+        service.unregister()
+
+
+if __name__ == '__main__':
+    main()

@@ -17,6 +17,11 @@
 #	comment = Sample Private Share
 #	path = /home/%U
 
+#[sample-backup-share]
+#	comment = Sample Backup Share
+#	path = /home/backups/%U
+#	fruit:time machine = yes
+
 #[sample-public-share]
 #	comment = Sample Public Share
 #	path = /home/public
