@@ -1,5 +1,6 @@
 [global]
 	include = registry
+	server string = Samba
 	restrict anonymous = 2
 	server smb encrypt = required
 	server signing = mandatory

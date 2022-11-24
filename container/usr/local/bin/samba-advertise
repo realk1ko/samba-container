@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import configparser
-import os
 import platform
 import signal
 import socket
@@ -26,14 +25,14 @@ class SambaConfig:
         self.enabled = global_config.getboolean("multicast dns register", True)
 
         # get hostname value the same way as Samba does
-        actual_hostname = platform.node().split(".")[0]
+        actual_host_name = platform.node().split(".")[0]
         if global_config.get("mdns name", "netbios").casefold() == "mdns".casefold():
-            self.hostname = actual_hostname
+            self.host_name = actual_host_name
         else:
-            self.hostname = global_config.get("netbios name", actual_hostname.upper())
+            self.host_name = global_config.get("netbios name", actual_host_name.upper())
 
-        # get pretty name via environment variable
-        self.name = os.getenv("PRETTY_NAME", self.hostname)
+        # get service name (this is non-standard, as Samba with Avahi always uses the mDNS hostname as service name)
+        self.service_name = global_config.get("server string", self.host_name)
 
         # model to use for advertising the service to Apple devices
         self.model = global_config.get("fruit:model", "MacSamba")
@@ -74,29 +73,29 @@ class SambaService:
 
                 services.append(ServiceInfo(
                     "_smb._tcp.local.",
-                    f"{self.__config.name}._smb._tcp.local.",
+                    f"{self.__config.service_name}._smb._tcp.local.",
                     445,
                     addresses=[socket.inet_aton(ip_address)],
-                    server=f"{self.__config.hostname}.local."
+                    server=f"{self.__config.host_name}.local."
                 ))
 
                 services.append(ServiceInfo(
                     "_device-info._tcp.local.",
-                    f"{self.__config.name}._device-info._tcp.local.",
+                    f"{self.__config.service_name}._device-info._tcp.local.",
                     0,
                     properties={"model": self.__config.model},
                     addresses=[socket.inet_aton(ip_address)],
-                    server=f"{self.__config.hostname}.local."
+                    server=f"{self.__config.host_name}.local."
                 ))
 
                 for share in self.__config.shares:
                     services.append(ServiceInfo(
                         "_adisk._tcp.local.",
-                        f"{self.__config.name}._adisk._tcp.local.",
+                        f"{self.__config.service_name}._adisk._tcp.local.",
                         0,
                         properties={"dk0": f"adVN={share},adVF=0x82", "sys": "adVF=0x100"},
                         addresses=[socket.inet_aton(ip_address)],
-                        server=f"{self.__config.hostname}.local."
+                        server=f"{self.__config.host_name}.local."
                     ))
 
                 self.__interfaces[adapter] = services
