@@ -32,7 +32,7 @@ class SambaConfig:
             self.host_name = global_config.get("netbios name", actual_host_name.upper())
 
         # get service name (this is non-standard, as Samba with Avahi always uses the mDNS hostname as service name)
-        self.service_name = global_config.get("server string", self.host_name)
+        self.service_name = global_config.get("server string", "Samba")
 
         # model to use for advertising the service to Apple devices
         self.model = global_config.get("fruit:model", "MacSamba")
