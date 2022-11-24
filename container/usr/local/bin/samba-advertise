@@ -126,9 +126,10 @@ def main():
     try:
         while True:
             time.sleep(1)
-    except KeyboardInterrupt:
+    except (SystemExit, KeyboardInterrupt):
         pass
     finally:
+        # unregister if exited interactively or because of an unexpected error
         service.unregister()
 
 
