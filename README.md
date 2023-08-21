@@ -10,8 +10,8 @@ The container provided here allows you to run Samba with mDNS in a container-onl
 
 The following tags are used for the images:
 
-- `:latest`: This is the tag you should be using. It is updated every Monday automatically. Additionally, each release
-  has a date tag (e. g. `:2022-11-22`).
+- `:latest`: This is the tag you should be using. is updated within a day of a new release of the Samba package for
+  Fedora automatically. Additionally, each release is tagged with the installed Samba version (e. g. `:4.18.6`).
 - `:edge`: Latest build of the image on the latest commit on the `dev` branch. Each image tagged with this is also
   tagged with the SHA commit reference it was built on (e. g. `:sha-bb8c5c4`).
 

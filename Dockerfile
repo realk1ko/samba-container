@@ -2,6 +2,8 @@ ARG BASE_IMAGE
 
 FROM ${BASE_IMAGE}
 
+ARG SAMBA_VERSION
+
 LABEL org.opencontainers.image.title Samba
 LABEL org.opencontainers.image.description A simple Samba container with support for mDNS
 LABEL org.opencontainers.image.licenses MIT
@@ -13,7 +15,7 @@ ADD ./container /
 ADD ./LICENSE /
 
 RUN set -euo pipefail && \
-    dnf install -y supervisor samba python3 python3-pip && \
+    dnf install -y supervisor samba-${SAMBA_VERSION} python3 python3-pip && \
     dnf clean all && \
     pip install -r /usr/local/etc/samba-container/requirements.txt && \
     dnf autoremove -y python3-pip && \
