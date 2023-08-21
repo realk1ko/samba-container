@@ -51,7 +51,7 @@ jobs:
           run: |
             set -euo pipefail
 
-            dnf info -q samba | sed -e "/^Version/!d" -e "s/Version  *:  *//g" | tr -d "\n" > /workspace/SAMBA_VERSION || :
+            dnf list -q samba | tail -n +2 |  tr -s " " | cut -d " " -f2 | tr -d "\n" > /workspace/SAMBA_VERSION || :
 
       - name: Get Samba version
         id: get-samba-version
@@ -60,18 +60,20 @@ jobs:
           set -euo pipefail
 
           samba_version=$(cat ${{ github.workspace }}/SAMBA_VERSION)
+          samba_version_tag=$(echo -n ${samba_version} | tr ":" "-")
           skip_workflow=0
 
           rm -f SAMBA_VERSION
 
           bearer_token=$(echo "${{ secrets.token }}" | base64)
 
-          if [[ "${{ inputs.release }}" = "true" ]] && (curl -If -H "Authorization: Bearer ${bearer_token}" "https://ghcr.io/v2/${{ secrets.username }}/${{ inputs.image_name }}/manifests/${samba_version}" || false); then
+          if [[ "${{ inputs.release }}" = "true" ]] && (curl -If -H "Authorization: Bearer ${bearer_token}" "https://ghcr.io/v2/${{ secrets.username }}/${{ inputs.image_name }}/manifests/${samba_version_tag}" || false); then
               echo "Version ${samba_version} has already been released."
               skip_workflow=1
           fi
 
           echo "samba_version=${samba_version}" >> $GITHUB_OUTPUT
+          echo "samba_version_tag=${samba_version_tag}" >> $GITHUB_OUTPUT
           echo "skip_workflow=${skip_workflow}" >> $GITHUB_OUTPUT
 
       - name: Prepare tags
@@ -82,7 +84,7 @@ jobs:
             ghcr.io/${{ secrets.username }}/${{ inputs.image_name }}
           tags: |
             type=raw,value=latest,enable=${{ inputs.release }}
-            type=raw,value=${{ steps.get-samba-version.outputs.samba_version }},enable=${{ inputs.release }}
+            type=raw,value=${{ steps.get-samba-version.outputs.samba_version_tag }},enable=${{ inputs.release }}
             
             type=raw,value=edge,enable=${{ !inputs.release }}
             type=sha,enable=${{ !inputs.release }}
