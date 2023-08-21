@@ -41,6 +41,39 @@ jobs:
           username: ${{ secrets.username }}
           password: ${{ secrets.token }}
 
+      # FIXME see https://github.com/addnab/docker-run-action/issues/41
+      - name: Get Samba version (workaround)
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ${{ inputs.base_image }}
+          options: -v ${{ github.workspace }}:/workspace
+          shell: bash
+          run: |
+            set -euo pipefail
+
+            dnf info -q samba | sed -e "/^Version/!d" -e "s/Version  *:  *//g" | tr -d "\n" > /workspace/SAMBA_VERSION || :
+
+      - name: Get Samba version
+        id: get-samba-version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          samba_version=$(cat ${{ github.workspace }}/SAMBA_VERSION)
+          skip_workflow=0
+
+          rm -f SAMBA_VERSION
+
+          bearer_token=$(echo "${{ secrets.token }}" | base64)
+
+          if [[ "${{ inputs.release }}" = "true" ]] && (curl -If -H "Authorization: Bearer ${bearer_token}" "https://ghcr.io/v2/${{ secrets.username }}/${{ inputs.image_name }}/manifests/${samba_version}" || false); then
+              echo "Version ${samba_version} has already been released."
+              skip_workflow=1
+          fi
+
+          echo "samba_version=${samba_version}" >> $GITHUB_OUTPUT
+          echo "skip_workflow=${skip_workflow}" >> $GITHUB_OUTPUT
+
       - name: Prepare tags
         id: prepare-tags
         uses: docker/metadata-action@v4
@@ -49,7 +82,7 @@ jobs:
             ghcr.io/${{ secrets.username }}/${{ inputs.image_name }}
           tags: |
             type=raw,value=latest,enable=${{ inputs.release }}
-            type=raw,value={{date 'YYYY-MM-DD'}},enable=${{ inputs.release }}
+            type=raw,value=${{ steps.get-samba-version.outputs.samba_version }},enable=${{ inputs.release }}
             
             type=raw,value=edge,enable=${{ !inputs.release }}
             type=sha,enable=${{ !inputs.release }}
@@ -63,4 +96,5 @@ jobs:
           platforms: ${{ inputs.platforms }}
           build-args: |
             BASE_IMAGE=${{ inputs.base_image }}
+            SAMBA_VERSION=${{ steps.get-samba-version.outputs.samba_version }}
           tags: ${{ steps.prepare-tags.outputs.tags }}
