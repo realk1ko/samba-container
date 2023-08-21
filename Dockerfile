@@ -21,4 +21,4 @@ RUN set -euo pipefail && \
     dnf autoremove -y python3-pip && \
     chmod 755 /usr/local/bin/*
 
-ENTRYPOINT [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
+CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
